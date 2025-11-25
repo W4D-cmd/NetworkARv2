@@ -3,6 +3,7 @@ using System;
 using Unity.Netcode;
 using Unity.Collections;
 using Meta.XR.MRUtilityKit;
+using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
 /// Handles meme object state, placement, and network synchronization.
@@ -19,6 +20,14 @@ public partial class MemeObjectHandler : NetworkBehaviour
 
     // --- Logger ---
     private Logger logger;
+
+    // --- Pinch Gesture Settings ---
+    [Header("Pinch Gesture Settings")]
+    [Tooltip("Enable pinch gesture scaling for this meme")]
+    public bool enablePinchScaling = true;
+
+    [Tooltip("Enable pinch gesture rotation for this meme")]
+    public bool enablePinchRotation = true;
 
     // --- Networking ---
     private readonly NetworkVariable<MemeObjectState.Networked> networkedState = new(
@@ -58,6 +67,28 @@ public partial class MemeObjectHandler : NetworkBehaviour
             networkedState.Value = state.ToNetworked();
         }
         ApplyState(state);
+    }
+
+    private void Start()
+    {
+        // Add pinch gesture handler if not already present and pinch scaling/rotation is enabled
+        if ((enablePinchScaling || enablePinchRotation) && GetComponent<PinchGestureHandler>() == null)
+        {
+            var pinchHandler = gameObject.AddComponent<PinchGestureHandler>();
+
+            // Configure the pinch handler based on this object's settings
+            if (enablePinchScaling)
+            {
+                pinchHandler.enabled = true;
+            }
+            else
+            {
+                // If pinch scaling is disabled, we still need to ensure proper configuration
+                pinchHandler.enabled = false;
+            }
+
+            logger?.LogDebug($"Added PinchGestureHandler to meme: {gameObject.name}", nameof(MemeObjectHandler));
+        }
     }
 
     private void ApplyNetworkedState(MemeObjectState.Networked netState)
