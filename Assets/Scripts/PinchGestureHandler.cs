@@ -27,7 +27,7 @@ public class PinchGestureHandler : NetworkBehaviour
     [Tooltip("Speed multiplier for rotation operations")]
     public float rotationSpeed = 100.0f;
 
-    private XRGrabInteractable grabInteractable;
+    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
     private Transform initialGrabPoint;
     private float initialGrabDistance;
     private float initialScaleFactor;
@@ -50,7 +50,7 @@ public class PinchGestureHandler : NetworkBehaviour
     {
         if (!IsOwner) return; // Only owner handles input
         
-        grabInteractable = GetComponent<XRGrabInteractable>();
+        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
         if (grabInteractable != null)
         {
             grabInteractable.selectEntered.AddListener(OnSelectEntered);
@@ -65,7 +65,7 @@ public class PinchGestureHandler : NetworkBehaviour
         }
     }
 
-    private void OnSelectEntered(SelectEnteredEventArgs args)
+    private void OnSelectEntered(SelectEnterEventArgs args)
     {
         if (!IsOwner) return;
         
@@ -77,14 +77,15 @@ public class PinchGestureHandler : NetworkBehaviour
         initialObjectPosition = transform.position;
         initialObjectRotation = transform.rotation;
         initialObjectLocalRotation = transform.localRotation;
-        
-        var interactors = grabInteractable.selectingInteractors;
-        
+
+        //var interactors = grabInteractable.selectingInteractors;
+        var interactors = grabInteractable.interactorsSelecting;
+
         if (interactors.Count == 1)
         {
             // Single hand grab - potentially for pinch scaling
             var interactor = interactors[0];
-            if (interactor is XRDirectInteractor directInteractor)
+            if (interactor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor)
             {
                 initialGrabPoint = directInteractor.transform;
                 initialGrabPosition1 = directInteractor.transform.position;
@@ -97,8 +98,8 @@ public class PinchGestureHandler : NetworkBehaviour
             var interactor1 = interactors[0];
             var interactor2 = interactors[1];
             
-            if (interactor1 is XRDirectInteractor directInteractor1 && 
-                interactor2 is XRDirectInteractor directInteractor2)
+            if (interactor1 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor1 && 
+                interactor2 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor2)
             {
                 initialGrabPosition1 = directInteractor1.transform.position;
                 initialGrabPosition2 = directInteractor2.transform.position;
@@ -129,7 +130,7 @@ public class PinchGestureHandler : NetworkBehaviour
         }
     }
 
-    private void OnSelectExited(SelectExitedEventArgs args)
+    private void OnSelectExited(SelectExitEventArgs args)
     {
         if (!IsOwner) return;
         
@@ -145,13 +146,13 @@ public class PinchGestureHandler : NetworkBehaviour
             memeHandler.SaveState();
         }
     }
-
+    
     void Update()
     {
-        if (!IsOwner || !grabInteractable || grabInteractable.selectingInteractors.Count == 0)
+        if (!IsOwner || !grabInteractable || grabInteractable.interactorsSelecting.Count == 0)
             return;
 
-        var interactors = grabInteractable.selectingInteractors;
+        var interactors = grabInteractable.interactorsSelecting;
 
         if (interactors.Count >= 2 && isPinchScaling)
         {
@@ -159,8 +160,8 @@ public class PinchGestureHandler : NetworkBehaviour
             var interactor1 = interactors[0];
             var interactor2 = interactors[1];
 
-            if (interactor1 is XRDirectInteractor directInteractor1 &&
-                interactor2 is XRDirectInteractor directInteractor2)
+            if (interactor1 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor1 &&
+                interactor2 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor2)
             {
                 Vector3 currentGrabPosition1 = directInteractor1.transform.position;
                 Vector3 currentGrabPosition2 = directInteractor2.transform.position;
@@ -195,8 +196,8 @@ public class PinchGestureHandler : NetworkBehaviour
             var interactor1 = interactors[0];
             var interactor2 = interactors[1];
 
-            if (interactor1 is XRDirectInteractor directInteractor1 &&
-                interactor2 is XRDirectInteractor directInteractor2)
+            if (interactor1 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor1 &&
+                interactor2 is UnityEngine.XR.Interaction.Toolkit.Interactors.XRDirectInteractor directInteractor2)
             {
                 Vector3 currentGrabPosition1 = directInteractor1.transform.position;
                 Vector3 currentGrabPosition2 = directInteractor2.transform.position;
